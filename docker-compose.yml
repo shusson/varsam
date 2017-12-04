@@ -1,0 +1,10 @@
+version: '2'
+services:
+  zero:
+    image: dgraph/dgraph
+    ports:
+      - "8080:8080"
+      - "9080:9080"
+    volumes:
+      - /Users/shane/src/go/src/github.com/shusson/varsam/data/db:/dgraph
+    command: ["sh", "/data/init.sh"]
