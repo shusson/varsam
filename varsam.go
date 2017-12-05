@@ -43,16 +43,23 @@ func processGenotypes() {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		variantKey := strings.Replace(row[1], ":", "", -1)
+		variantKey := strings.Replace(row[1], ":", "-", -1)
 
-		//AF, err := strconv.ParseFloat(row[2], 64)
-
+		chrom := strings.Split(variantKey, "-")[0]
+		start, err := strconv.Atoi(strings.Split(variantKey, "-")[1])
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		AF, err := strconv.ParseFloat(row[2], 64)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 
 		output += fmt.Sprintf("_:sample%d <name> \"%d\" .\n", sampleId,  sampleId)
 		output += fmt.Sprintf("_:variant%s <name> \"%s\" .\n", variantKey,  variantKey)
+		output += fmt.Sprintf("_:variant%s <chrom> \"%s\" .\n", variantKey,  chrom)
+		output += fmt.Sprintf("_:variant%s <start> \"%d\" .\n", variantKey,  start)
+		output += fmt.Sprintf("_:variant%s <AF> \"%f\" .\n", variantKey,  AF)
 		output += fmt.Sprintf("_:sample%d <variant> _:variant%s .\n", sampleId,  variantKey)
 
 		rowIndex++
@@ -63,7 +70,5 @@ func processGenotypes() {
 	}
 	defer of.Close()
 	of.WriteString(output)
-
-	fmt.Println(output)
 }
 
