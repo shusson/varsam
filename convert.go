@@ -70,15 +70,12 @@ func processGenotypes() {
 		output = append(output, fmt.Sprintf("_:sample%d <variant> _:variant%s .\n", sampleId,  variantKey)...)
 
 		rowIndex++
-		if rowIndex % 100000 == 0 {
+		if rowIndex % 1000000 == 0 {
 			p := (float32(rowIndex)/67695719.0) * 100.0
-			fmt.Printf("%f\n", p)
+			fmt.Printf("%.1f\n", p)
 			of.Write(output)
 			output = make([]byte, 0, 0)
 		}
 	}
-
-
-
 }
 
