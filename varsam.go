@@ -16,14 +16,20 @@ func main() {
 }
 
 func processGenotypes() {
-	f, err := os.Open("data/gdb_10.tsv")
+	f, err := os.Open("data/gdb_1m.tsv")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	defer f.Close()
 
+	of, err := os.Create("data/test.rdf")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer of.Close()
 
-	output := ""
+
+	output := make([]byte, 0, 0)
 	reader := csv.NewReader(f)
 	reader.Comma = '\t'
 	rowIndex := 0
@@ -55,20 +61,24 @@ func processGenotypes() {
 			log.Fatal(err.Error())
 		}
 
-		output += fmt.Sprintf("_:sample%d <name> \"%d\" .\n", sampleId,  sampleId)
-		output += fmt.Sprintf("_:variant%s <name> \"%s\" .\n", variantKey,  variantKey)
-		output += fmt.Sprintf("_:variant%s <chrom> \"%s\" .\n", variantKey,  chrom)
-		output += fmt.Sprintf("_:variant%s <start> \"%d\" .\n", variantKey,  start)
-		output += fmt.Sprintf("_:variant%s <AF> \"%f\" .\n", variantKey,  AF)
-		output += fmt.Sprintf("_:sample%d <variant> _:variant%s .\n", sampleId,  variantKey)
+		output = append(output, fmt.Sprintf("_:sample%d <name> \"%d\" .\n", sampleId,  sampleId)...)
+		output = append(output, fmt.Sprintf("_:sample%d <sampleId> \"%d\" .\n", sampleId,  sampleId)...)
+		output = append(output, fmt.Sprintf("_:variant%s <name> \"%s\" .\n", variantKey,  variantKey)...)
+		output = append(output, fmt.Sprintf("_:variant%s <chrom> \"%s\" .\n", variantKey,  chrom)...)
+		output = append(output, fmt.Sprintf("_:variant%s <start> \"%d\" .\n", variantKey,  start)...)
+		output = append(output, fmt.Sprintf("_:variant%s <AF> \"%f\" .\n", variantKey,  AF)...)
+		output = append(output, fmt.Sprintf("_:sample%d <variant> _:variant%s .\n", sampleId,  variantKey)...)
 
 		rowIndex++
+		if rowIndex % 100000 == 0 {
+			p := (float32(rowIndex)/67695719.0) * 100.0
+			fmt.Printf("%f\n", p)
+			of.Write(output)
+			output = make([]byte, 0, 0)
+		}
 	}
-	of, err := os.Create("data/test.rdf")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	defer of.Close()
-	of.WriteString(output)
+
+
+
 }
 
